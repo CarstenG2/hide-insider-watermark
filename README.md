@@ -30,7 +30,7 @@ The setting is only switched on for the running session. Nothing outside your ow
 
 ## Installation
 
-1. Download `Hide-InsiderWatermark.ps1`.
+1. Download `Hide-InsiderWatermark.ps1` from the [latest release](https://github.com/CarstenG2/hide-insider-watermark/releases/latest).
 2. Right-click the file and choose **Run with PowerShell**.
 3. Confirm the UAC prompt.
 
