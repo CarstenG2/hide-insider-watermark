@@ -24,7 +24,7 @@ The setting is only switched on for the running session. Nothing outside your ow
 
 ## Requirements
 
-- Windows 11 Insider Preview with a desktop wallpaper image
+- Windows 11 Insider Preview
 - Windows PowerShell 5.1 (built into Windows)
 - Administrator rights **once**, for the set-up
 
@@ -52,7 +52,7 @@ The watermark returns with the next sign-in.
 ## Limitations
 
 - The watermark stays visible for a few seconds after sign-in, until the desktop is shown and the script switches the setting.
-- With a solid colour background the script works as well, but it is not needed: without an image there is nothing to lose, and "Remove background images" can simply stay on.
+- The watermark is shown on a solid colour background as well. The script has been tested with a wallpaper image; solid colour and slideshow backgrounds are untested.
 - An Insider update may change how Windows handles this setting. If the desktop turns black after an update, delete the task and check whether the setting behaves as described above.
 
 ## Troubleshooting
