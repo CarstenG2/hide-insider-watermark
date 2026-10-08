@@ -55,9 +55,10 @@ While the watermark is hidden, "Remove background images" is on for the running 
 
 To pick a different wallpaper:
 
-1. Control Panel > **Ease of Access Center** > **Make the computer easier to see**.
-2. Clear **Remove background images (where available)** and click **OK**. The watermark is visible again.
-3. *Settings > Personalization > Background*: choose the new wallpaper.
+1. Open the Control Panel: press the **Start** button, type `Control Panel` and select it.
+2. Select **Ease of Access Center**, then **Make the computer easier to see**. If the Control Panel shows categories, open **Ease of Access** first.
+3. Scroll down, clear **Remove background images (where available)** and click **OK**. The watermark appears again right away, which confirms the right box.
+4. Open *Settings > Personalization > Background* and choose the new wallpaper. If the Background page was already open, it does not refresh on its own: go back one level to *Personalization* and open *Background* again.
 
 Leave the box cleared. At the next sign-in the task hides the watermark again and keeps the new wallpaper. Ticking the box yourself would save the setting in the profile, and the desktop would stay black from the next sign-in on.
 
