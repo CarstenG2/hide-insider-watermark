@@ -1,11 +1,12 @@
 # Windows 11 Insider Preview: remove / hide the "Evaluation copy" desktop watermark and keep the wallpaper (no black background, no third-party tool)
 
-$taskFolder  = '\Microsoft\Windows\Shell'
-$taskName    = 'Hide Insider Watermark'
-$installDir  = "$env:ProgramFiles\HideInsiderWatermark"
-$installPath = "$installDir\Hide-InsiderWatermark.ps1"
-$powershell  = "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe"
-$desktopKey  = 'HKCU:\Control Panel\Desktop'
+$taskFolder   = '\Microsoft\Windows\Shell'
+$taskName     = 'Hide Insider Watermark'
+$installDir   = "$env:ProgramFiles\HideInsiderWatermark"
+$installPath  = "$installDir\Hide-InsiderWatermark.ps1"
+$powershell   = "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe"
+$desktopKey   = 'HKCU:\Control Panel\Desktop'
+$wallpaperKey ='HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Wallpapers'
 
 # check if the task is installed:
 $scheduler = New-Object -ComObject Schedule.Service
@@ -47,9 +48,19 @@ if (-not $isInstalled) {
 
 # load the Windows functions:
 $user32 = Add-Type -Name User32 -PassThru -MemberDefinition @'
+// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-systemparametersinfow
 [DllImport("user32.dll")]
 public static extern bool SystemParametersInfo(uint action, uint param, IntPtr value, uint flags);
+
+// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-systemparametersinfow
+[DllImport("user32.dll", CharSet = CharSet.Unicode)]
+public static extern bool SystemParametersInfo(uint action, uint param, string value, uint flags);
 '@
+
+# name the Windows settings:
+$setDisableOverlappedContent = 0x1041
+$setDeskWallpaper            = 0x14
+$saveAndBroadcast            = 0x3
 
 # wait for the desktop to appear:
 $deadline = (Get-Date).AddMinutes(2)
@@ -70,9 +81,18 @@ $savedMask = (Get-ItemProperty $desktopKey).UserPreferencesMask
 $removeBackgroundImages = 0x01
 if ($savedMask[4] -band $removeBackgroundImages) { exit }
 
+# read the current background:
+$backgroundType = (Get-ItemProperty $wallpaperKey).BackgroundType
+$wallpaper = (Get-ItemProperty $desktopKey).WallPaper
+$isPicture = $backgroundType -eq 0 -and [IO.File]::Exists($wallpaper)
+
+# load the picture before the watermark is hidden:
+if ($isPicture) {
+    $null = $user32::SystemParametersInfo($setDisableOverlappedContent, 0, [IntPtr]0, $saveAndBroadcast)
+    $null = $user32::SystemParametersInfo($setDeskWallpaper, 0, $wallpaper, $saveAndBroadcast)
+}
+
 # hide the watermark:
-$setDisableOverlappedContent = 0x1041
-$saveAndBroadcast = 0x3
 $null = $user32::SystemParametersInfo($setDisableOverlappedContent, 0, [IntPtr]1, $saveAndBroadcast)
 
 # restore the profile value:

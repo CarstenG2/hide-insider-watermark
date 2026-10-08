@@ -13,12 +13,13 @@ Insider Preview builds paint a build watermark in the bottom-right corner of the
 
 ## How it works
 
-The watermark follows the setting at once; the wallpaper is read only at sign-in. The script uses that difference:
+The watermark follows the setting at once; a wallpaper that is already loaded stays when the setting is switched on. The script uses that difference:
 
-1. At sign-in it waits until the shell signals that the desktop is shown (`ShellDesktopSwitchEvent`), so the wallpaper is already loaded.
+1. At sign-in it waits until the shell signals that the desktop is shown (`ShellDesktopSwitchEvent`).
 2. It saves `UserPreferencesMask` from `HKCU\Control Panel\Desktop`.
-3. It switches "Remove background images" on with `SystemParametersInfo(SPI_SETDISABLEOVERLAPPEDCONTENT)`, saved and announced like the Apply button. The watermark disappears; the loaded wallpaper stays.
-4. It writes the saved `UserPreferencesMask` back. The profile keeps the setting off, so the next sign-in loads the wallpaper again.
+3. It reads the background type and the wallpaper path. For a picture background with an existing file, it switches "Remove background images" off and sets the same wallpaper again with `SystemParametersInfo(SPI_SETDESKWALLPAPER)`, so the picture is loaded fresh before the watermark is hidden.
+4. It switches "Remove background images" on with `SystemParametersInfo(SPI_SETDISABLEOVERLAPPEDCONTENT)`, saved and announced like the Apply button. The watermark disappears; the loaded wallpaper stays.
+5. It writes the saved `UserPreferencesMask` back. The profile keeps the setting off, so the next sign-in loads the wallpaper again.
 
 If "Remove background images" is already on in the profile, because you use it on purpose, the script exits and leaves it as it is.
 
@@ -69,7 +70,7 @@ Leave the box cleared. At the next sign-in the task hides the watermark again an
 ## Limitations
 
 - The watermark stays visible for a few seconds after sign-in, until the desktop is shown and the script switches the setting.
-- The watermark is shown on a solid colour background as well. The script has been tested with a wallpaper image; solid colour and slideshow backgrounds are untested.
+- The watermark is shown on a solid colour background as well. With a solid colour the script hides the watermark and the colour stays. Slideshow backgrounds are untested.
 - Anything that reloads the wallpaper during the session, such as choosing a new one, can leave a solid colour instead of the image, because the setting is on. Signing out and in restores it. See also "Changing the wallpaper".
 - An Insider update may change how Windows handles this setting. If the desktop turns black after an update, delete the task and check whether the setting behaves as described above.
 
