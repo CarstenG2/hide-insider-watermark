@@ -49,10 +49,23 @@ If Windows blocks the downloaded file, unblock it first: file properties > **Unb
 
 The watermark returns with the next sign-in.
 
+## Changing the wallpaper
+
+While the watermark is hidden, "Remove background images" is on for the running session. *Settings > Personalization > Background* then shows no picture, colour or slideshow options, and its preview is black. Themes can still be applied.
+
+To pick a different wallpaper:
+
+1. Control Panel > **Ease of Access Center** > **Make the computer easier to see**.
+2. Clear **Remove background images (where available)** and click **OK**. The watermark is visible again.
+3. *Settings > Personalization > Background*: choose the new wallpaper.
+
+Leave the box cleared. At the next sign-in the task hides the watermark again and keeps the new wallpaper. Ticking the box yourself would save the setting in the profile, and the desktop would stay black from the next sign-in on.
+
 ## Limitations
 
 - The watermark stays visible for a few seconds after sign-in, until the desktop is shown and the script switches the setting.
 - The watermark is shown on a solid colour background as well. The script has been tested with a wallpaper image; solid colour and slideshow backgrounds are untested.
+- Anything that reloads the wallpaper during the session, such as choosing a new one, can leave a solid colour instead of the image, because the setting is on. Signing out and in restores it. See also "Changing the wallpaper".
 - An Insider update may change how Windows handles this setting. If the desktop turns black after an update, delete the task and check whether the setting behaves as described above.
 
 ## Troubleshooting
