@@ -20,6 +20,8 @@ The watermark follows the setting at once; the wallpaper is read only at sign-in
 3. It switches "Remove background images" on with `SystemParametersInfo(SPI_SETDISABLEOVERLAPPEDCONTENT)`, saved and announced like the Apply button. The watermark disappears; the loaded wallpaper stays.
 4. It writes the saved `UserPreferencesMask` back. The profile keeps the setting off, so the next sign-in loads the wallpaper again.
 
+If "Remove background images" is already on in the profile, because you use it on purpose, the script exits and leaves it as it is.
+
 The setting is only switched on for the running session. Nothing outside your own registry hive (`HKCU`) is changed at run time.
 
 ## Requirements

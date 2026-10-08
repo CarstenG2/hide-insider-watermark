@@ -66,6 +66,10 @@ if (-not $isDesktopReady) { exit }
 # save the profile value:
 $savedMask = (Get-ItemProperty $desktopKey).UserPreferencesMask
 
+# keep the setting if the user turned it on:
+$removeBackgroundImages = 0x01
+if ($savedMask[4] -band $removeBackgroundImages) { exit }
+
 # hide the watermark:
 $setDisableOverlappedContent = 0x1041
 $saveAndBroadcast = 0x3
