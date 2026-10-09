@@ -8,12 +8,13 @@ $powershell   = "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe"
 $desktopKey   = 'HKCU:\Control Panel\Desktop'
 $wallpaperKey ='HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Wallpapers'
 
-# check if the task is installed:
+# check if the task is installed with both triggers:
 $scheduler = New-Object -ComObject Schedule.Service
 $scheduler.Connect()
 $folder = $scheduler.GetFolder($taskFolder)
-$isInstalled = $false
-try { $isInstalled = [bool]$folder.GetTask($taskName) } catch {}
+$triggerCount = 0
+try { $triggerCount = $folder.GetTask($taskName).Definition.Triggers.Count } catch {}
+$isInstalled = $triggerCount -eq 2
 
 # install task:
 if (-not $isInstalled) {
@@ -35,8 +36,12 @@ if (-not $isInstalled) {
         $task.Principal.UserId = $identity.Name
         $task.Principal.RunLevel = 0
 
-        $trigger = $task.Triggers.Create(9)
-        $trigger.UserId = $identity.Name
+        $logonTrigger = $task.Triggers.Create(9)
+        $logonTrigger.UserId = $identity.Name
+
+        $unlockTrigger = $task.Triggers.Create(11)
+        $unlockTrigger.UserId = $identity.Name
+        $unlockTrigger.StateChange = 8
 
         $action = $task.Actions.Create(0)
         $action.Path = $powershell
