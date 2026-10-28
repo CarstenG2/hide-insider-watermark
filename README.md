@@ -11,6 +11,8 @@ Evaluation copy. Build 28020.3142.br_release_svc_betaflt_prod1.260924-1829
 
 Insider Preview builds paint a build watermark in the bottom-right corner of the desktop. The common tip to hide it is the Ease of Access setting **"Remove background images (where available)"**. It does hide the watermark, but from the next sign-in on the desktop stays **black**: Windows loads the wallpaper only once at sign-in, and with that setting saved in the profile it loads no image at all. Reinstalling Windows over itself does not help, because the setting lives in the user profile.
 
+There is a second half to the problem. While the watermark is hidden, the setting stays on for the session. Any event that makes Windows redraw the desktop then drops the picture and leaves the solid background colour: switching Bluetooth on or off, plugging in a device, a display change or an unlock. The watermark returns at the same moment. The script keeps watching for these events and sets the wallpaper again each time, so the picture and the hidden watermark both come back within about a second.
+
 ## How it works
 
 The watermark follows the setting at once; a wallpaper that is already loaded stays when the setting is switched on. The script uses that difference:
