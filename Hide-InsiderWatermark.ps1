@@ -9,7 +9,7 @@ $conhost      = "$env:SystemRoot\System32\conhost.exe"
 $desktopKey   = 'HKCU:\Control Panel\Desktop'
 $wallpaperKey ='HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Wallpapers'
 $watcherName  = 'Local\HideInsiderWatermark'
-$quietTime    = 2000
+$quietTime    = 500
 
 # check if the task is installed with the sign-in trigger only and without a time limit:
 $scheduler = New-Object -ComObject Schedule.Service

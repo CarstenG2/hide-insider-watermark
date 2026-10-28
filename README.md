@@ -44,7 +44,7 @@ The script sets itself up on first use:
 - it registers the scheduled task `\Microsoft\Windows\Shell\Hide Insider Watermark`, which runs the script at every sign-in of your user account, **without** elevation, with no time limit and on battery as well, through `conhost.exe --headless` so no console window shows,
 - it starts the task, which hides the watermark right away and keeps running for the session.
 
-To update from an earlier version, run the new script once the same way. It replaces the task definition.
+To update from an earlier version, run the new script once the same way, then sign out and in. It replaces the task definition; a copy that is already running keeps working until sign-out.
 
 If Windows blocks the downloaded file, unblock it first: file properties > **Unblock**, or `Unblock-File .\Hide-InsiderWatermark.ps1`.
 
