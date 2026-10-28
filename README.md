@@ -20,11 +20,13 @@ The watermark follows the setting at once; a wallpaper that is already loaded st
 3. It reads the background type and the wallpaper path. For a picture background with an existing file, it switches "Remove background images" off and sets the same wallpaper again with `SystemParametersInfo(SPI_SETDESKWALLPAPER)`, so the picture is loaded fresh before the watermark is hidden.
 4. It switches "Remove background images" on with `SystemParametersInfo(SPI_SETDISABLEOVERLAPPEDCONTENT)`, saved and announced like the Apply button. The watermark disappears; the loaded wallpaper stays.
 5. It writes the saved `UserPreferencesMask` back. The profile keeps the setting off, so the next sign-in loads the wallpaper again.
-6. It stays running in the background with a hidden window. Windows redraws the desktop after events such as switching Bluetooth on or off, plugging in a device, changing the display or unlocking, and with the setting on, the redraw leaves a solid colour instead of the picture. The window receives the messages Windows sends for these events (`WM_DEVICECHANGE`, `WM_DISPLAYCHANGE`, `WM_SETTINGCHANGE`, `WM_THEMECHANGED`, `WM_DWMCOMPOSITIONCHANGED`, `WM_WTSSESSION_CHANGE`, `TaskbarCreated`). Two seconds after the last of them, it repeats steps 2 to 5 once.
+6. It stays running in the background with a hidden window. Windows redraws the desktop after events such as switching Bluetooth on or off, plugging in a device, changing the display or unlocking, and with the setting on, the redraw leaves a solid colour instead of the picture. The window receives the messages Windows sends for these events (`WM_DEVICECHANGE`, `WM_DISPLAYCHANGE`, `WM_SETTINGCHANGE`, `WM_THEMECHANGED`, `WM_DWMCOMPOSITIONCHANGED`, `WM_WTSSESSION_CHANGE`, `TaskbarCreated`). Half a second after the last of them, it repeats steps 2 to 5 once.
 
 If "Remove background images" is already on in the profile, because you use it on purpose, the script exits and leaves it as it is.
 
 The setting is only switched on for the running session. Nothing outside your own registry hive (`HKCU`) is changed at run time.
+
+The task starts the script, which hands its own code to a second PowerShell through standard input and exits. That second process is the one that stays, so it shows in Task Manager as `powershell.exe` with no parameters on its command line. Only one copy runs at a time.
 
 ## Requirements
 
@@ -41,7 +43,7 @@ The setting is only switched on for the running session. Nothing outside your ow
 The script sets itself up on first use:
 
 - it copies itself to `C:\Program Files\HideInsiderWatermark\`, where standard users cannot change it,
-- it registers the scheduled task `\Microsoft\Windows\Shell\Hide Insider Watermark`, which runs the script at every sign-in of your user account, **without** elevation, with no time limit and on battery as well, through `conhost.exe --headless` so no console window shows,
+- it registers the scheduled task `\Microsoft\Windows\Shell\Hide Insider Watermark`, which runs the script at every sign-in of your user account, **without** elevation, with no time limit and on battery as well, with no console window,
 - it starts the task, which hides the watermark right away and keeps running for the session.
 
 To update from an earlier version, run the new script once the same way, then sign out and in. It replaces the task definition; a copy that is already running keeps working until sign-out.

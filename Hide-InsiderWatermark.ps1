@@ -11,29 +11,35 @@ $wallpaperKey ='HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Wallpap
 $watcherName  = 'Local\HideInsiderWatermark'
 $quietTime    = 500
 
-# check if the task is installed with the sign-in trigger only and without a time limit:
-$scheduler = New-Object -ComObject Schedule.Service
-$scheduler.Connect()
-$folder = $scheduler.GetFolder($taskFolder)
-$installedTask = $null
-try { $installedTask = $folder.GetTask($taskName).Definition } catch {}
-$hasOneTrigger = $installedTask.Triggers.Count -eq 1
-$hasNoTimeLimit = $installedTask.Settings.ExecutionTimeLimit -eq 'PT0S'
-$isInstalled = $hasOneTrigger -and $hasNoTimeLimit
+# find out whether this copy was started with its parameters on the command line or handed its code through standard input:
+$ownProcess = Get-CimInstance Win32_Process -Filter "ProcessId = $PID"
+$startedFromStdin = $ownProcess.CommandLine -notmatch '-File'
 
-# install task:
-if (-not $isInstalled) {
-    $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
-    $principal = [Security.Principal.WindowsPrincipal]$identity
-    $isAdmin = $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+# set up the task, then hand the script to a copy that shows no parameters:
+if (-not $startedFromStdin) {
 
-    if (-not $isAdmin) {
-        $setupArguments = "-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$PSCommandPath`""
-        Start-Process $powershell $setupArguments -Verb RunAs
-        exit
-    }
+    # check if the task is installed with the sign-in trigger only and without a time limit:
+    $scheduler = New-Object -ComObject Schedule.Service
+    $scheduler.Connect()
+    $folder = $scheduler.GetFolder($taskFolder)
+    $installedTask = $null
+    try { $installedTask = $folder.GetTask($taskName).Definition } catch {}
+    $hasOneTrigger = $installedTask.Triggers.Count -eq 1
+    $hasNoTimeLimit = $installedTask.Settings.ExecutionTimeLimit -eq 'PT0S'
+    $isInstalled = $hasOneTrigger -and $hasNoTimeLimit
 
-    if ($isAdmin) {
+    # install the task on first run:
+    if (-not $isInstalled) {
+        $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
+        $principal = [Security.Principal.WindowsPrincipal]$identity
+        $isAdmin = $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+
+        if (-not $isAdmin) {
+            $setupArguments = "-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$PSCommandPath`""
+            Start-Process $powershell $setupArguments -Verb RunAs
+            exit
+        }
+
         $null = New-Item $installDir -ItemType Directory -Force
         Copy-Item $PSCommandPath $installPath -Force
 
@@ -56,6 +62,20 @@ if (-not $isInstalled) {
         $null = $folder.GetTask($taskName).Run($null)
         exit
     }
+
+    # hand the script to a second PowerShell with an empty command line, fed through standard input:
+    $handoff = [Diagnostics.ProcessStartInfo]::new()
+    $handoff.FileName = $powershell
+    $handoff.Arguments = '     '
+    $handoff.UseShellExecute = $false
+    $handoff.RedirectStandardInput = $true
+    $handoff.CreateNoWindow = $true
+
+    $scriptBody = [IO.File]::ReadAllText($installPath)
+    $hiddenCopy = [Diagnostics.Process]::Start($handoff)
+    $hiddenCopy.StandardInput.WriteLine($scriptBody)
+    $hiddenCopy.StandardInput.Close()
+    exit
 }
 
 # load the Windows functions:
